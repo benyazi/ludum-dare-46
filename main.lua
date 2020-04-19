@@ -1,4 +1,5 @@
 --load libs
+json = require "lib.json"
 require 'lib.require'
 local camera = require 'lib.hump.camera'
 Vector = require 'lib.hump.vector'
@@ -20,13 +21,8 @@ Systems = require.tree('src.systems')
 
 -- create new world
 World = world:new(
-  Bump.newWorld(32),
-  Systems.draw.DrawRectSystem,
-  -- Systems.draw.ChangeColorSystem,
-  -- Systems.MouseSelection.DrawMouseSelectionSystem,
-  -- Systems.MouseSelection.UpdateMouseSelectionSystem,
-  Systems.dev.DrawFpsSystem,
-  Systems.clear.ClearEventSystem
+  Bump.newWorld(16),
+  Systems.dev.DrawFpsSystem
 )
 
 --  create system filters
@@ -34,8 +30,12 @@ local drawFilter = Tiny.requireAll('isDrawSystem')
 local drawGuiFilter = Tiny.requireAll('isDrawGuiSystem')
 local updateFilter = Tiny.rejectAny('isDrawSystem','isDrawGuiSystem')
 
+GRAVITY = -500
+SCENE = 'main_menu'
+
 function love.load()
-  love.window.setTitle( 'GAME' )
+  love.graphics.setBackgroundColor(0.32,0.32,0.32)
+  love.window.setTitle( 'Only One Way' )
   -- load all image, sound and etc.
   Assets.load()
   --  save window size to global
@@ -43,41 +43,177 @@ function love.load()
   WindowWidth = love.graphics.getWidth()
   --  Create camera instanse and set zoom value
   Camera = camera(WindowWidth/2,WindowHeight/2)
-  local cam_scale = 1
+  local cam_scale = 1.5
   Camera:zoomTo(cam_scale)
 -- set random seed
   math.randomseed(os.time())
 
-  for i=1,5 do
-    local block = Entities.Block(
-      10 * love.math.random(0, 64),
-      10 * love.math.random(0, 64),
-      50,45
-    )
-    block.drawRect = Components.DrawRect(0.3,0.8,0.1)
-    World:addEntity(block)
-  end
+  -- generateMap()
+  
+end
 
+function generateMap(levelName)
+  -- local levelName = 'level_1'
+	local jsonString = love.filesystem.read('src/maps/' .. levelName .. '.json')
+  local levelData = json.decode(jsonString)
+  
+  local mapData = levelData.map 
+  
+  for i, mapItem in pairs(mapData) do
+    local posX, posY = mapItem.pos.i * 32, mapItem.pos.j * 32
+    if mapItem.type == 'platform_icy' then
+      local platform = Entities.Platform(Assets.platform_icy, posX, posY)
+      World:addEntity(platform)
+    elseif mapItem.type == 'asphalth' then
+      World:addEntity(Entities.Platform(Assets['asphalth'], posX, posY))
+    elseif mapItem.type == 'exit' then
+      World:addEntity(Entities.ExitPoint(posX, posY))
+    elseif mapItem.type == 'alphalth_snowy_p' then
+      World:addEntity(Entities.Platform(Assets['alphalth_snowy_p'], posX, posY))
+    elseif mapItem.type == 'robot_caring' then
+      ROBOT = Entities.Robot(posX, posY, 32, 32)
+      World:addEntity(ROBOT)
+      World:addEntity(Entities.Children(posX + 32 + 16, posY, 16, 16))
+    else
+      World:addEntity(Entities.BackBlock(mapItem.type, posX, posY))
+    end
+  end
+  -- World:addEntity(Entities.Human(128,WindowHeight-192, 32, 32))
+  -- World:addEntity(Entities.Platform(128,WindowHeight-128, 4, 1))
+  -- World:addEntity(Entities.Platform(256,WindowHeight-224, 4, 1))
+end
+
+function love.draw()
+  if SCENE == 'main_menu' then
+    love.graphics.print('Press Enter to start', WindowWidth/2 - 100, WindowHeight/2)
+    if SCREEN_MESSAGE then 
+      love.graphics.print(SCREEN_MESSAGE, WindowWidth/2 - 100, WindowHeight/2 - 50)
+    end
+  elseif SCENE == 'loading' then
+    if LoadLevel then 
+      local percent = 100 - LoadLevel.Timer*100
+      love.graphics.print('Loading > '.. math.floor(percent) .. '%', WindowWidth/2 - 100, WindowHeight/2)
+    end
+  elseif SCENE == 'level' then
+    Camera:attach() --switch to camera scope
+      World:update(love.timer.getDelta(), drawFilter)
+    Camera:detach() --return from camera scope
+    World:update(love.timer.getDelta(), drawGuiFilter)
+  end
+end
+
+function love.update(dt)
+  if LoadLevel then 
+    LoadLevel.Timer = LoadLevel.Timer - dt
+    if LoadLevel.Timer <= 0 then 
+      gotoScene('level', LoadLevel.level)
+      LoadLevel = nil
+    end
+  else
+    World:update(dt,updateFilter)
+  end
+end
+
+function love.mousepressed(x, y, button)
+  -- World:addEntity(Entities.events.MouseClick(x,y,button))
+end
+
+LevelSystems = {
+    Systems.camera.TargetSmooth,
+    Systems.draw.DrawRectSystem,
+    Systems.draw.DrawRectTiledSystem,
+    Systems.input.HandleInput,
+    Systems.loot.CheckActive,
+    Systems.dev.DrawFpsSystem,
+    Systems.draw.FlipSprite,
+    Systems.draw.DrawSprite,
+    Systems.physics.UpdateOnPlatform,
+    Systems.physics.VelocityMoving,
+    Systems.loot.DrawActiveText,
+    Systems.loot.CheckButton,
+    Systems.loot.OpenLootbox,
+    Systems.loot.LootObject,
+    Systems.human.ShootDetect,
+    Systems.human.Shooting,
+    Systems.human.BulletMoving,
+    Systems.human.BulletCollition,
+    Systems.children.UpdateOnhandsPosition,
+    Systems.children.UpdateHeatLevel,
+    Systems.children.DrawHeatLevel,
+    Systems.children.CheckDrop,
+    Systems.children.DropChildren,
+    Systems.children.GenerateSound,
+    Systems.children.LetterAMoving,
+    Systems.physics.Gravity,
+    Systems.clear.ClearEventSystem,
+    Systems.clear.RemoveTimer,
+    Systems.exit.ExitEnter,
+    Systems.exit.ExitEvent
+}
+
+Levels = {"level_1","level_2","level_3"}
+
+LoadLevel = nil
+
+function gotoScene(name, adv)
+  World:clearWorld()
+  if name == 'level' then
+    print('Start load level ' .. adv)
+    
+    if Levels[adv] == nil then 
+      SCENE = 'main_menu'
+      if SCREEN_MESSAGE == nil then
+        SCREEN_MESSAGE = 'GAME WIN' 
+      end
+      print('Not found, return to main menu ')
+      CURRENT_LEVEL = 1
+      return
+    end
+    CURRENT_LEVEL = adv
+    print('Load systems')
+    for k,v in pairs(LevelSystems) do
+      World:addSystem(v)
+    end
+    SCENE = 'level'
+    print('Generate map for ' .. Levels[adv])
+    generateMap(Levels[adv])
+  end
   -- Add sumply entity for print FPS system
   World:addEntity({drawFps = true})
 end
 
-function love.draw()
-  Camera:attach() --switch to camera scope
-    World:update(love.timer.getDelta(), drawFilter)
-  Camera:detach() --return from camera scope
-  World:update(love.timer.getDelta(), drawGuiFilter)
+function nextLevel()
+  local nextLevelNumber = CURRENT_LEVEL + 1
+  print('Go to next level: ' .. nextLevelNumber)
+  LoadLevel = {
+    Timer = 1,
+    level = nextLevelNumber
+  }
+  SCENE = 'loading'
+  -- gotoScene('level', nextLevelNumber)
 end
 
-function love.update(dt)
-  World:update(dt,updateFilter)
+SCREEN_MESSAGE = nil
+
+function gameOver(reason)
+  SCREEN_MESSAGE = 'GAME OVER'
+  gotoScene('level', -1)
 end
 
-function love.mousepressed(x, y, button)
-  World:addEntity(Entities.events.MouseClick(x,y,button))
+function gameWin()
+  SCREEN_MESSAGE = 'GAME WIN'
+  gotoScene('level', -1)
 end
 
 function love.keypressed(key, scancode, isrepeat)
+  if SCENE == 'main_menu' and scancode == 'return' then
+    LoadLevel = {
+      Timer = 1,
+      level = 1
+    }
+    SCENE = 'loading'
+    -- gotoScene('level', 1)
+  end
 end
 
 function love.keyreleased(k, scancode)

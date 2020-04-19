@@ -52,6 +52,17 @@ function m:notifyChange(e)
 	return self:addEntity(e)
 end
 
+
+function m:clearWorld()
+   Tiny.clearEntities(self.world)
+   -- Tiny.clearSystems(self.world)
+   for k,v in pairs(self.entities) do
+      self:removeEntity(v)
+      v = nil
+   end
+   Tiny.refresh(self.world)
+end
+
 function m:update(dt, filter)
 	return self.world:update(dt, filter)
 end
