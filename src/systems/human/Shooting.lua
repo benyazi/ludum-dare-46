@@ -10,7 +10,7 @@ function system:process(e,dt)
     return
   end
   if e.shootingTimer <= 0 then 
-    e.shootingTimer = 0.25
+    e.shootingTimer = 0.5
     World:notifyChange(e)  
   else  
     e.shootingTimer = e.shootingTimer - 1 * dt
@@ -28,9 +28,9 @@ function system:process(e,dt)
   -- local rad = math.pi
   local bullet = {
     bullet = {
-      damage = 1,
+      damage = 5,
       lifeTimer = 2,
-      speed = 500,
+      speed = 350,
       rad = rad
     },
     position = {

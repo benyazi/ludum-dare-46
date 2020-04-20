@@ -11,7 +11,7 @@ function Human:init(x, y, w, h)
     }
     self.isHuman = true
     self.state = 'idle'
-    self.shootingTimer = 0.5
+    self.shootingTimer = 1
 end
 
 return Human

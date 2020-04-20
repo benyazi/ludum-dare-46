@@ -15,6 +15,7 @@ end
 function system:process(e,dt)
   local items, len = World.physics:queryPoint(e.position.x, e.position.y, damageFilter)
   local touched = false
+  
   for k,v in pairs(items) do
     -- print(Inspect(v))
     -- if v.health then 
@@ -31,7 +32,10 @@ function system:process(e,dt)
       -- World:notifyChange(v)
     -- end
     if v.isChildren then 
+      World:removeEntity(e)
+      e = nil
       gameOver('Chidlren dead from bullet.')
+      return
     elseif v.isRobot then 
       v.energy.current = v.energy.current - e.bullet.damage
       World:notifyChange(v)
