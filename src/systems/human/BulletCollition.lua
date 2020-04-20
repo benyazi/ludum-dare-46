@@ -28,9 +28,15 @@ function system:process(e,dt)
       --   end
       -- end
       -- v.health = v.health - dmg
-      touched = true
       -- World:notifyChange(v)
     -- end
+    if v.isChildren then 
+      gameOver('Chidlren dead from bullet.')
+    elseif v.isRobot then 
+      v.energy.current = v.energy.current - e.bullet.damage
+      World:notifyChange(v)
+    end
+    touched = true
   end
   if touched then 
     World:removeEntity(e)

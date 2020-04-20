@@ -30,6 +30,7 @@ local drawFilter = Tiny.requireAll('isDrawSystem')
 local drawGuiFilter = Tiny.requireAll('isDrawGuiSystem')
 local updateFilter = Tiny.rejectAny('isDrawSystem','isDrawGuiSystem')
 
+DEV = true
 GRAVITY = -500
 SCENE = 'main_menu'
 FONT_SIZE = 18
@@ -40,6 +41,7 @@ function love.load()
   FontDefault = love.graphics.newFont("assets/AldotheApache.ttf", FONT_SIZE)
   Font_12 = love.graphics.newFont("assets/AldotheApache.ttf", 12)
   Font_10 = love.graphics.newFont("assets/AldotheApache.ttf", 10)
+  Font_32 = love.graphics.newFont("assets/AldotheApache.ttf", 32)
   -- load all image, sound and etc.
   Assets.load()
   --  save window size to global
@@ -54,6 +56,7 @@ function love.load()
 
   music = love.audio.newSource( 'assets/wind.flac', 'stream' )
   music:setLooping( true ) --so it doesnt stop
+  music:setVolume(1)
   music:play()
 end
 
@@ -115,6 +118,10 @@ end
 function love.draw()
   love.graphics.setFont(FontDefault)
   if SCENE == 'main_menu' then
+    love.graphics.setFont(Font_32)
+    love.graphics.print('Only one way', WindowWidth/2 - 100, WindowHeight/2 - 100)
+    love.graphics.setFont(FontDefault)
+
     love.graphics.print('Press Enter to start', WindowWidth/2 - 100, WindowHeight/2)
     if SCREEN_MESSAGE then 
       love.graphics.print(SCREEN_MESSAGE, WindowWidth/2 - 100, WindowHeight/2 - 50)
@@ -237,11 +244,15 @@ SCREEN_MESSAGE = nil
 DOWNLINE = 0
 
 function gameOver(reason)
-  SCREEN_MESSAGE = 'GAME OVER'
-  if reason then 
-    SCREEN_MESSAGE = SCREEN_MESSAGE .. '. ' .. reason
+  if DEV then 
+    gotoScene('level', CURRENT_LEVEL)
+  else
+    SCREEN_MESSAGE = 'GAME OVER'
+    if reason then 
+      SCREEN_MESSAGE = SCREEN_MESSAGE .. '. ' .. reason
+    end
+    gotoScene('level', -1)
   end
-  gotoScene('level', -1)
 end
 
 function gameWin()
@@ -257,6 +268,23 @@ function love.keypressed(key, scancode, isrepeat)
     }
     SCENE = 'loading'
     -- gotoScene('level', 1)
+  end
+
+  if DEV then
+    if pcall(function ()
+      local level = tonumber(scancode);
+      if love.keyboard.isScancodeDown('lctrl') then 
+        level = level + 10
+      end
+      print('GOTO ' .. level);
+      LoadLevel = {
+        Timer = 0.3,
+        level = level
+      }
+      SCENE = 'loading'
+    end) then
+      
+    end 
   end
 end
 
