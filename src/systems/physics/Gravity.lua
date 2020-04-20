@@ -6,7 +6,7 @@ function system:process(e, dt)
   local curX, curY = e.position.x, e.position.y
   local curVelocity = e.rigibody.velocity
   local gravity = GRAVITY
-  if e.onPlatform then 
+  if e.onPlatform or e.offGravity then 
     curVelocity.y = 0
     e.rigibody.velocity = curVelocity
     World:notifyChange(e)

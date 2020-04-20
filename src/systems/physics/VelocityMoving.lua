@@ -10,7 +10,7 @@ function system:process(e, dt)
   local mass = e.rigibody.mass
   local gravity = GRAVITY
   if e.onCaring then 
-    mass = mass + 0.1
+    mass = mass + 1.5
     curSpeed = curSpeed - 50
   end
   

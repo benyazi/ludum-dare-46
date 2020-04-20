@@ -6,6 +6,9 @@ function system:onAdd(e)
 end
 
 function system:process(e,dt)
+  if e == nil then 
+    return
+  end
   if e.shootingTimer <= 0 then 
     e.shootingTimer = 0.25
     World:notifyChange(e)  

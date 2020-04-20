@@ -16,6 +16,26 @@ function Robot:init(x, y, w, h)
         current = 100,
         max = 100
     }
+    self.energy = {
+        current = 100,
+        max = 100
+    }
+    self.gravityGun = {
+        radius = 300,
+        speed = 100,
+        energySize = 10
+    }
+    self.hadleInput = {
+        gravityAction = {
+            scancode = 'lshift',
+            isDown = false
+        }
+    }
+    self.heating = {
+        heatSize = 20,
+        energySize = 10
+    }
+    self.checkDownline = true
     self.isRobot = true
     self.canLoot = true
     self.targetSmooth = true

@@ -24,6 +24,7 @@ function Children:init(x, y, w, h)
             isDown = false
         }
     }
+    self.checkDownline = true
     self.heat = {
         current = 100,
         max = 100,

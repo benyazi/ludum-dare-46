@@ -32,10 +32,14 @@ local updateFilter = Tiny.rejectAny('isDrawSystem','isDrawGuiSystem')
 
 GRAVITY = -500
 SCENE = 'main_menu'
+FONT_SIZE = 18
 
 function love.load()
   love.graphics.setBackgroundColor(0.32,0.32,0.32)
   love.window.setTitle( 'Only One Way' )
+  FontDefault = love.graphics.newFont("assets/AldotheApache.ttf", FONT_SIZE)
+  Font_12 = love.graphics.newFont("assets/AldotheApache.ttf", 12)
+  Font_10 = love.graphics.newFont("assets/AldotheApache.ttf", 10)
   -- load all image, sound and etc.
   Assets.load()
   --  save window size to global
@@ -58,6 +62,11 @@ function generateMap(levelName)
   local levelData = json.decode(jsonString)
   
   local mapData = levelData.map 
+  if levelData.messages then
+    for i, msgItem in pairs(levelData.messages) do
+      World:addEntity({isMsg=true,text=msgItem.text,index=i})
+    end
+  end
   
   for i, mapItem in pairs(mapData) do
     local posX, posY = mapItem.pos.i * 32, mapItem.pos.j * 32
@@ -91,6 +100,9 @@ function generateMap(levelName)
     else
       World:addEntity(Entities.BackBlock(mapItem.type, posX, posY))
     end
+    if DOWNLINE < posY then 
+      DOWNLINE = posY
+    end
   end
   -- World:addEntity(Entities.Human(128,WindowHeight-192, 32, 32))
   -- World:addEntity(Entities.Platform(128,WindowHeight-128, 4, 1))
@@ -98,6 +110,7 @@ function generateMap(levelName)
 end
 
 function love.draw()
+  love.graphics.setFont(FontDefault)
   if SCENE == 'main_menu' then
     love.graphics.print('Press Enter to start', WindowWidth/2 - 100, WindowHeight/2)
     if SCREEN_MESSAGE then 
@@ -134,13 +147,13 @@ end
 
 LevelSystems = {
     Systems.camera.TargetSmooth,
-    Systems.draw.DrawRectSystem,
     Systems.draw.DrawRectTiledSystem,
     Systems.input.HandleInput,
     Systems.loot.CheckActive,
     Systems.dev.DrawFpsSystem,
     Systems.draw.FlipSprite,
     Systems.draw.DrawSprite,
+    Systems.draw.DrawRectSystem,
     Systems.physics.UpdateOnPlatform,
     Systems.physics.VelocityMoving,
     Systems.loot.DrawActiveText,
@@ -152,6 +165,7 @@ LevelSystems = {
     Systems.human.BulletMoving,
     Systems.human.BulletCollition,
     Systems.children.UpdateOnhandsPosition,
+    Systems.children.UpdateHeatOnHands,
     Systems.children.UpdateHeatLevel,
     Systems.children.DrawHeatLevel,
     Systems.children.CheckDrop,
@@ -159,10 +173,17 @@ LevelSystems = {
     Systems.children.GenerateSound,
     Systems.children.LetterAMoving,
     Systems.physics.Gravity,
+    Systems.robot.UseGravity,
+    Systems.robot.UseHeating,
+    Systems.robot.DrawGravityGunRadius,
+    Systems.robot.DrawEnergyLevel,
+    Systems.draw.DrawLevelMessage,
+    Systems.robot.UseGravityClear,
     Systems.clear.ClearEventSystem,
     Systems.clear.RemoveTimer,
     Systems.exit.ExitEnter,
-    Systems.exit.ExitEvent
+    Systems.exit.ExitEvent,
+    Systems.clear.CheckDownline
 }
 
 Levels = {"level_1","level_2","level_3"}
@@ -200,7 +221,7 @@ function nextLevel()
   local nextLevelNumber = CURRENT_LEVEL + 1
   print('Go to next level: ' .. nextLevelNumber)
   LoadLevel = {
-    Timer = 1,
+    Timer = 0.3,
     level = nextLevelNumber
   }
   SCENE = 'loading'
@@ -208,6 +229,7 @@ function nextLevel()
 end
 
 SCREEN_MESSAGE = nil
+DOWNLINE = 0
 
 function gameOver(reason)
   SCREEN_MESSAGE = 'GAME OVER'
@@ -222,7 +244,7 @@ end
 function love.keypressed(key, scancode, isrepeat)
   if SCENE == 'main_menu' and scancode == 'return' then
     LoadLevel = {
-      Timer = 1,
+      Timer = 0.3,
       level = 1
     }
     SCENE = 'loading'

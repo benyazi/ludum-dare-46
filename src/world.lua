@@ -20,6 +20,10 @@ function m:addEntity(e)
        end
       end
       self.physics:add(e, x, y, e.size.w, e.size.h)
+      -- self.physics:update(e, x, y, e.size.w, e.size.h)
+   elseif self.physics:hasItem(e) then
+      local x, y = e.position.x, e.position.y
+      self.physics:update(e, x, y, e.size.w, e.size.h)
    end
 	self.entities[e] = e
 	return self.world:addEntity(e)

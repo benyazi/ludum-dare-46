@@ -7,7 +7,7 @@ function system:process(e)
     return
   end
   local scancode = e.hadleInput.useAction.scancode
-  love.graphics.print('Press ' .. scancode .. ' to catch', e.position.x, e.position.y - 15)
+  -- love.graphics.print('Press ' .. scancode .. ' to catch', e.position.x, e.position.y - 15)
   -- return default color
   love.graphics.setColor(1,1,1)
 end
