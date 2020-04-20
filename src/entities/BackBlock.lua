@@ -18,6 +18,9 @@ function BackBlock:init(type, x, y)
     elseif type == 'snow' then
         level = 1.07
         img = Assets.snow
+    elseif Assets[type] ~= nil then 
+        level = 1.045
+        img = Assets[type]
     end
     if img then
         local tileH = img:getHeight()

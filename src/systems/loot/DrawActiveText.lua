@@ -3,7 +3,7 @@ local system = Tiny.processingSystem({
   isDrawSystem = true})
 
 function system:process(e)
-  if e.lootBox.active ~= true then 
+  if e.lootBox.active ~= true or e.onHands then 
     return
   end
   local scancode = e.hadleInput.useAction.scancode

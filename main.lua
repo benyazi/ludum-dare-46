@@ -61,15 +61,26 @@ function generateMap(levelName)
   
   for i, mapItem in pairs(mapData) do
     local posX, posY = mapItem.pos.i * 32, mapItem.pos.j * 32
-    if mapItem.type == 'platform_icy' then
-      local platform = Entities.Platform(Assets.platform_icy, posX, posY)
-      World:addEntity(platform)
-    elseif mapItem.type == 'asphalth' then
-      World:addEntity(Entities.Platform(Assets['asphalth'], posX, posY))
-    elseif mapItem.type == 'exit' then
+    if mapItem.type == 'exit' then
       World:addEntity(Entities.ExitPoint(posX, posY))
-    elseif mapItem.type == 'alphalth_snowy_p' then
-      World:addEntity(Entities.Platform(Assets['alphalth_snowy_p'], posX, posY))
+    elseif mapItem.type == 'pipe_huge_elbow' 
+    or mapItem.type == 'pipe_huge_elbow2'
+    or mapItem.type == 'pipe_huge_elbow3'
+    or mapItem.type == 'pipe_huge_elbow4'
+    or mapItem.type == 'pipe_huge_v'
+    or mapItem.type == 'pipe_huge'
+    or mapItem.type == 'asphalth_h'
+    or mapItem.type == 'alphalth_snowy_p'
+    or mapItem.type == 'asphalth'
+    or mapItem.type == 'platform_icy'
+    or mapItem.type == 'platform'
+    or mapItem.type == 'platform_snowy'
+    or mapItem.type == 'snow2'
+    or mapItem.type == 'bricks'
+    then
+      World:addEntity(Entities.Platform(Assets[mapItem.type], posX, posY))
+    elseif mapItem.type == 'human' then
+      World:addEntity(Entities.Human(posX, posY, 32, 32))
     elseif mapItem.type == 'robot_caring' then
       ROBOT = Entities.Robot(posX, posY, 32, 32)
       World:addEntity(ROBOT)

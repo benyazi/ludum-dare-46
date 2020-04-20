@@ -31,10 +31,36 @@ function assets.load()
 	image('kafel','assets/sprites/kafel_big.png')
 	image('snow','assets/sprites/snow.png')
 	image('asphalth','assets/sprites/asphalth.png')
+	image('asphalth_h','assets/sprites/asphalth_h.png')
 	image('alphalth_snowy_p','assets/sprites/alphalth_snowy_p.png')
+	image('sosuli','assets/sprites/sosuli.png')
+	image('sosuli_up','assets/sprites/sosuli_up.png')
+	image('ladder','assets/sprites/ladder.png')
+	image('chair_and_table','assets/sprites/chair_and_table.png')
+	image('door_open','assets/sprites/door_open.png')
+	image('door_close','assets/sprites/door_close.png')
+	image('wires','assets/sprites/wires.png')
+	image('siding','assets/sprites/siding.png')
+
+	image('pipe_huge_elbow','assets/sprites/pipe_huge_elbow.png')
+	image('pipe_huge_elbow2','assets/sprites/pipe_huge_elbow2.png')
+	image('pipe_huge_elbow3','assets/sprites/pipe_huge_elbow3.png')
+	image('pipe_huge_elbow4','assets/sprites/pipe_huge_elbow4.png')
+	image('pipe_huge_v','assets/sprites/pipe_huge_v.png')
+	image('pipe_huge','assets/sprites/pipe_huge.png')
+
+	image('snow2','assets/sprites/snow2.png')
+	image('platform','assets/sprites/platform.png')
+	image('platform_snowy','assets/sprites/platform_snowy.png')
+	image('racks2','assets/sprites/racks2.png')
+	image('bricks','assets/sprites/bricks.png')
+	image('beton','assets/sprites/beton.png')
 	
 	image('exit','assets/sprites/exit.png')
 	image('letterA','assets/sprites/a_letter.png')
+
+	image('gunner_a','assets/sprites/gunner_a.png')
+	image('gunner_a_001','assets/sprites/gunner_a_001.png')
 end
 
 return assets
