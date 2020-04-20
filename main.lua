@@ -221,7 +221,12 @@ LevelSystems = {
     Systems.exit.ExitEvent,
     Systems.clear.CheckDownline
 }
-
+LevelLastSystemsForRemove = {
+  Systems.human.ShootDetect,
+  Systems.human.Shooting,
+  Systems.exit.ExitEnter,
+  Systems.exit.ExitEvent
+}
 LevelLastSystems = {
   Systems.camera.TargetSmooth,
   Systems.draw.DrawRectTiledSystem,
@@ -238,8 +243,6 @@ LevelLastSystems = {
   Systems.loot.CheckButton,
   Systems.loot.OpenLootbox,
   Systems.loot.LootObject,
-  -- Systems.human.ShootDetect,
-  Systems.human.Shooting,
   Systems.human.BulletMoving,
   Systems.human.BulletCollition,
   Systems.children.UpdateOnhandsPosition,
@@ -287,6 +290,9 @@ function gotoScene(name, adv)
     elseif Levels[adv] == nil then 
       print('Load final level')
       print('Load systems')
+      for k,v in pairs(LevelLastSystemsForRemove) do
+        World:removeSystem(v)
+      end
       for k,v in pairs(LevelLastSystems) do
         World:addSystem(v)
       end
