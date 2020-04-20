@@ -35,7 +35,7 @@ function Children:init(x, y, w, h)
         heatMin = 70
     }
     self.isChildren = true
-    self.drawSprite = {sprite = Assets.baby, level = 1.1, scale = {x=1,y=1}}
+    self.drawSprite = {sprite = Assets.baby, level = 1.2, scale = {x=1,y=1}}
 end
 
 return Children

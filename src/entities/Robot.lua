@@ -39,7 +39,7 @@ function Robot:init(x, y, w, h)
     self.isRobot = true
     self.canLoot = true
     self.targetSmooth = true
-    self.drawSprite = {sprite = Assets.robot_standing, level = 1.1, scale = {x=1,y=1}}
+    self.drawSprite = {sprite = Assets.robot_standing, level = 1.2, scale = {x=1,y=1}}
 end
 
 return Robot

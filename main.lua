@@ -52,8 +52,9 @@ function love.load()
 -- set random seed
   math.randomseed(os.time())
 
-  -- generateMap()
-  
+  music = love.audio.newSource( 'assets/wind.flac', 'stream' )
+  music:setLooping( true ) --so it doesnt stop
+  music:play()
 end
 
 function generateMap(levelName)
@@ -93,6 +94,8 @@ function generateMap(levelName)
       World:addEntity(Entities.Platform(Assets[mapItem.type], posX, posY))
     elseif mapItem.type == 'human' then
       World:addEntity(Entities.Human(posX, posY, 32, 32))
+    elseif mapItem.type == 'energy' then
+      World:addEntity(Entities.Energy(posX, posY, 32, 32))
     elseif mapItem.type == 'robot_caring' then
       ROBOT = Entities.Robot(posX, posY, 32, 32)
       World:addEntity(ROBOT)
@@ -176,6 +179,8 @@ LevelSystems = {
     Systems.robot.UseGravity,
     Systems.robot.UseHeating,
     Systems.robot.DrawGravityGunRadius,
+    Systems.robot.EnergyDetect,
+    Systems.robot.CheckEnergyLevel,
     Systems.robot.DrawEnergyLevel,
     Systems.draw.DrawLevelMessage,
     Systems.robot.UseGravityClear,
@@ -233,6 +238,9 @@ DOWNLINE = 0
 
 function gameOver(reason)
   SCREEN_MESSAGE = 'GAME OVER'
+  if reason then 
+    SCREEN_MESSAGE = SCREEN_MESSAGE .. '. ' .. reason
+  end
   gotoScene('level', -1)
 end
 

@@ -12,7 +12,7 @@ function system:process(e,dt)
   end
 
   if e.heat.current <= 0 then
-    gameOver('children_is_cold')
+    gameOver('Children died of cold')
   end
 end
 
