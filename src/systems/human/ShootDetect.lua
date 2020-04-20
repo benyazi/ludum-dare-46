@@ -14,7 +14,7 @@ end
 
 function system:process(e,dt)
   local changed = false
-  local items, len = World.physics:queryRect(e.position.x+e.size.w/2-320, e.position.y-e.size.h, 400, e.size.h*2, targetFilter)
+  local items, len = World.physics:queryRect(e.position.x+e.size.w/2-400/2, e.position.y, 400, e.size.h*2, targetFilter)
   if #items > 0 then 
     e.shooting = items[1]
   else

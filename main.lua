@@ -35,6 +35,8 @@ GRAVITY = -500
 SCENE = 'main_menu'
 FONT_SIZE = 18
 
+CAM_SCALE = 1.5
+
 function love.load()
   love.graphics.setBackgroundColor(0.32,0.32,0.32)
   love.window.setTitle( 'Only One Way' )
@@ -49,8 +51,8 @@ function love.load()
   WindowWidth = love.graphics.getWidth()
   --  Create camera instanse and set zoom value
   Camera = camera(WindowWidth/2,WindowHeight/2)
-  local cam_scale = 1.5
-  Camera:zoomTo(cam_scale)
+  
+  Camera:zoomTo(CAM_SCALE)
 -- set random seed
   math.randomseed(os.time())
 
@@ -75,7 +77,11 @@ function generateMap(levelName)
   for i, mapItem in pairs(mapData) do
     local posX, posY = mapItem.pos.i * 32, mapItem.pos.j * 32
     if mapItem.type == 'exit' then
-      World:addEntity(Entities.ExitPoint(posX, posY))
+      if levelName == 'level_last' then 
+        World:addEntity(Entities.ExitPoint(posX, posY, true))
+      else
+        World:addEntity(Entities.ExitPoint(posX, posY))
+      end
     elseif mapItem.type == 'pipe_huge_elbow' 
     or mapItem.type == 'pipe_huge_elbow2'
     or mapItem.type == 'pipe_huge_elbow3'
@@ -151,6 +157,21 @@ function love.update(dt)
   else
     World:update(dt,updateFilter)
   end
+
+  if SCENE == 'level' and love.keyboard.isScancodeDown('q') and CAM_SCALE > 0.5 then 
+    CAM_SCALE = CAM_SCALE - 1*dt
+    if CAM_SCALE == 0.5 or CAM_SCALE < 0.51 then 
+      CAM_SCALE = 0.5
+    else 
+      Camera:zoomTo(CAM_SCALE)
+    end
+  elseif SCENE == 'level' and CAM_SCALE < 1.5 then
+    CAM_SCALE = CAM_SCALE + 1*dt
+    if CAM_SCALE > 1.5 then 
+      CAM_SCALE = 1.5
+    end
+    Camera:zoomTo(CAM_SCALE)
+  end
 end
 
 function love.mousepressed(x, y, button)
@@ -201,7 +222,52 @@ LevelSystems = {
     Systems.clear.CheckDownline
 }
 
-Levels = {"level_1","level_2","level_3"}
+LevelLastSystems = {
+  Systems.camera.TargetSmooth,
+  Systems.draw.DrawRectTiledSystem,
+  Systems.input.HandleInput,
+  Systems.loot.CheckActive,
+  Systems.dev.DrawFpsSystem,
+  Systems.draw.FlipSprite,
+  Systems.draw.DrawSprite,
+  Systems.draw.DrawRectSystem,
+  Systems.robot.LadderDetect,
+  Systems.physics.UpdateOnPlatform,
+  Systems.physics.VelocityMoving,
+  Systems.loot.DrawActiveText,
+  Systems.loot.CheckButton,
+  Systems.loot.OpenLootbox,
+  Systems.loot.LootObject,
+  -- Systems.human.ShootDetect,
+  Systems.human.Shooting,
+  Systems.human.BulletMoving,
+  Systems.human.BulletCollition,
+  Systems.children.UpdateOnhandsPosition,
+  Systems.children.UpdateHeatOnHands,
+  Systems.children.UpdateHeatLevel,
+  Systems.children.DrawHeatLevel,
+  Systems.children.CheckDrop,
+  Systems.children.DropChildren,
+  Systems.children.GenerateSound,
+  Systems.children.LetterAMoving,
+  Systems.physics.Gravity,
+  Systems.robot.UseGravity,
+  Systems.robot.UseHeating,
+  Systems.robot.DrawGravityGunRadius,
+  Systems.robot.EnergyDetect,
+  Systems.robot.CheckEnergyLevel,
+  Systems.robot.DrawEnergyLevel,
+  Systems.draw.DrawLevelMessage,
+  Systems.robot.UseGravityClear,
+  Systems.clear.ClearEventSystem,
+  Systems.clear.RemoveTimer,
+  Systems.exit.ExitEnterFinal,
+  Systems.exit.ExitEventDoomFinal,
+  Systems.exit.ExitEventLiveFinal,
+  Systems.clear.CheckDownline
+}
+
+Levels = {"level_1","level_2","level_3","level_4","level_5","level_6"}
 
 LoadLevel = nil
 
@@ -210,7 +276,7 @@ function gotoScene(name, adv)
   if name == 'level' then
     print('Start load level ' .. adv)
     
-    if Levels[adv] == nil then 
+    if Levels[adv] == nil and adv == -1 then 
       SCENE = 'main_menu'
       if SCREEN_MESSAGE == nil then
         SCREEN_MESSAGE = 'GAME WIN' 
@@ -218,15 +284,25 @@ function gotoScene(name, adv)
       print('Not found, return to main menu ')
       CURRENT_LEVEL = 1
       return
+    elseif Levels[adv] == nil then 
+      print('Load final level')
+      print('Load systems')
+      for k,v in pairs(LevelLastSystems) do
+        World:addSystem(v)
+      end
+      SCENE = 'level'
+      print('Generate map for level_last')
+      generateMap('level_last')
+    else
+      CURRENT_LEVEL = adv
+      print('Load systems')
+      for k,v in pairs(LevelSystems) do
+        World:addSystem(v)
+      end
+      SCENE = 'level'
+      print('Generate map for ' .. Levels[adv])
+      generateMap(Levels[adv])
     end
-    CURRENT_LEVEL = adv
-    print('Load systems')
-    for k,v in pairs(LevelSystems) do
-      World:addSystem(v)
-    end
-    SCENE = 'level'
-    print('Generate map for ' .. Levels[adv])
-    generateMap(Levels[adv])
   end
   -- Add sumply entity for print FPS system
   World:addEntity({drawFps = true})
@@ -258,8 +334,8 @@ function gameOver(reason)
   end
 end
 
-function gameWin()
-  SCREEN_MESSAGE = 'GAME WIN'
+function gameWin(reason)
+  SCREEN_MESSAGE = 'GAME WIN' .. reason
   gotoScene('level', -1)
 end
 

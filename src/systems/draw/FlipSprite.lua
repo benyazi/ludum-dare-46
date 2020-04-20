@@ -1,5 +1,5 @@
 local system = Tiny.processingSystem({
-  filter = Tiny.filter('drawSprite&rigibody')
+  filter = Tiny.filter('drawSprite&rigibody&isRobot')
 })
 
 function system:process(e)

@@ -60,6 +60,8 @@ function assets.load()
 	image('beton','assets/sprites/beton.png')
 	
 	image('exit','assets/sprites/exit.png')
+	image('exit_doom','assets/sprites/exit_doom.png')
+	
 	image('letterA','assets/sprites/a_letter.png')
 
 	image('energy','assets/sprites/energy.png')
