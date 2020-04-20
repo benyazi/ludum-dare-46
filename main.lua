@@ -97,6 +97,8 @@ function generateMap(levelName)
       World:addEntity(Entities.Platform(Assets[mapItem.type], posX, posY))
     elseif mapItem.type == 'human' then
       World:addEntity(Entities.Human(posX, posY, 32, 32))
+    elseif mapItem.type == 'ladder' then
+      World:addEntity(Entities.Ladder(posX, posY, 32, 32))
     elseif mapItem.type == 'energy' then
       World:addEntity(Entities.Energy(posX, posY, 32, 32))
     elseif mapItem.type == 'robot_caring' then
@@ -164,6 +166,7 @@ LevelSystems = {
     Systems.draw.FlipSprite,
     Systems.draw.DrawSprite,
     Systems.draw.DrawRectSystem,
+    Systems.robot.LadderDetect,
     Systems.physics.UpdateOnPlatform,
     Systems.physics.VelocityMoving,
     Systems.loot.DrawActiveText,

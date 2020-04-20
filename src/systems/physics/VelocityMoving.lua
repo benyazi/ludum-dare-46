@@ -22,16 +22,26 @@ function system:process(e, dt)
     curVelocity.x = 0
   end
   
-  if e.onPlatform then
-		curVelocity.y = 0
-  end
-  
-  if love.keyboard.isScancodeDown('space') then      
-    if curVelocity.y == 0 then
-      curVelocity.y = -curJump
+  if e.onLadder then 
+    if love.keyboard.isScancodeDown('w') then
+      curVelocity.y = -curSpeed
+    elseif love.keyboard.isScancodeDown('s') then
+      curVelocity.y = curSpeed
+    else
+      curVelocity.y = 0
     end
+  else
+    if e.onPlatform then
+      curVelocity.y = 0
+    end
+    
+    if love.keyboard.isScancodeDown('space') then      
+      if curVelocity.y == 0 then
+        curVelocity.y = -curJump
+      end
+    end
+    curVelocity.y = curVelocity.y - gravity * dt * mass
   end
-  curVelocity.y = curVelocity.y - gravity * dt * mass
   
   -- print('Velocity ' .. curVelocity.x .. ' x ' .. curVelocity.y)
   local pos = Vector(curX, curY) + curVelocity*dt
