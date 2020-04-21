@@ -68,6 +68,9 @@ function assets.load()
 
 	image('gunner_a','assets/sprites/gunner_a.png')
 	image('gunner_a_001','assets/sprites/gunner_a_001.png')
+
+	image('game_over','assets/game_over.png')
+	image('game_win','assets/game_win.png')
 end
 
 return assets

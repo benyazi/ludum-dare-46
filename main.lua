@@ -30,7 +30,7 @@ local drawFilter = Tiny.requireAll('isDrawSystem')
 local drawGuiFilter = Tiny.requireAll('isDrawGuiSystem')
 local updateFilter = Tiny.rejectAny('isDrawSystem','isDrawGuiSystem')
 
-DEV = true
+DEV = false
 GRAVITY = -500
 SCENE = 'main_menu'
 FONT_SIZE = 18
@@ -38,6 +38,7 @@ FONT_SIZE = 18
 CAM_SCALE = 1.5
 
 function love.load()
+  GAME_END = nil
   love.graphics.setBackgroundColor(0.32,0.32,0.32)
   love.window.setTitle( 'Only One Way' )
   FontDefault = love.graphics.newFont("assets/AldotheApache.ttf", FONT_SIZE)
@@ -126,14 +127,40 @@ end
 function love.draw()
   love.graphics.setFont(FontDefault)
   if SCENE == 'main_menu' then
-    love.graphics.setFont(Font_32)
-    love.graphics.print('Only one way', WindowWidth/2 - 100, WindowHeight/2 - 100)
-    love.graphics.setFont(FontDefault)
+    if GAME_END ~= nil then 
+      if GAME_END == 'doom' then 
+        love.graphics.draw(Assets.game_over, 0, 0, nil, 2.5, 2.5)
+        love.graphics.setColor(0,0,0)
+        love.graphics.print('Press Enter to start', WindowWidth/2 - 100, WindowHeight/2)
+        if SCREEN_MESSAGE then 
+          love.graphics.print(SCREEN_MESSAGE, WindowWidth/2 - 200, WindowHeight/2 - 50)
+        end
+        love.graphics.setColor(1,1,1)
+      elseif GAME_END == 'live' then 
+          love.graphics.draw(Assets.game_win, 0, 0, nil, 2, 2)
+          love.graphics.setColor(1,1,1)
+          love.graphics.print('Press Enter to start', WindowWidth/2 - 100, 200)
+          if SCREEN_MESSAGE then 
+            love.graphics.print(SCREEN_MESSAGE, WindowWidth/2 - 200, 100)
+          end
+          love.graphics.setColor(1,1,1)
+      end
+    else
+      love.graphics.setFont(Font_32)
+      love.graphics.print('Only one way', WindowWidth/2 - 100, WindowHeight/2 - 100)
+      love.graphics.setFont(FontDefault)
 
-    love.graphics.print('Press Enter to start', WindowWidth/2 - 100, WindowHeight/2)
-    if SCREEN_MESSAGE then 
-      love.graphics.print(SCREEN_MESSAGE, WindowWidth/2 - 100, WindowHeight/2 - 50)
+      love.graphics.print('Game by', WindowWidth/2 - 100, WindowHeight-90)
+      love.graphics.print('Unesty and BenYazi', WindowWidth/2 - 100, WindowHeight-60)
+      love.graphics.print('For Ludum Dare 46', WindowWidth/2 - 100, WindowHeight-30)
+
+      love.graphics.print('Press Enter to start', WindowWidth/2 - 100, WindowHeight/2)
+      if SCREEN_MESSAGE then 
+        love.graphics.print(SCREEN_MESSAGE, WindowWidth/2 - 100, WindowHeight/2 - 50)
+      end
     end
+
+
   elseif SCENE == 'loading' then
     if LoadLevel then 
       local percent = 100 - LoadLevel.Timer*100
@@ -221,6 +248,11 @@ LevelSystems = {
     Systems.exit.ExitEvent,
     Systems.clear.CheckDownline
 }
+LevelSystemsForRemove = {
+  Systems.exit.ExitEnterFinal,
+  Systems.exit.ExitEventDoomFinal,
+  Systems.exit.ExitEventLiveFinal
+}
 LevelLastSystemsForRemove = {
   Systems.human.ShootDetect,
   Systems.human.Shooting,
@@ -302,6 +334,9 @@ function gotoScene(name, adv)
     else
       CURRENT_LEVEL = adv
       print('Load systems')
+      for k,v in pairs(LevelSystemsForRemove) do
+        World:removeSystem(v)
+      end
       for k,v in pairs(LevelSystems) do
         World:addSystem(v)
       end
@@ -336,12 +371,22 @@ function gameOver(reason)
     if reason then 
       SCREEN_MESSAGE = SCREEN_MESSAGE .. '. ' .. reason
     end
+    World:clearWorld()
     gotoScene('level', -1)
   end
 end
 
+GAME_END = nil
 function gameWin(reason)
-  SCREEN_MESSAGE = 'GAME WIN' .. reason
+  SCREEN_MESSAGE = 'GAME WIN'
+  if reason == 'live' then 
+    GAME_END = reason
+    SCREEN_MESSAGE = SCREEN_MESSAGE .. '. You destroyed doom machine and saved all humans.'
+  elseif reason == 'doom' then 
+    GAME_END = reason
+    SCREEN_MESSAGE = SCREEN_MESSAGE .. '. You run doom machine and robots killed all humans.'
+  end
+  World:clearWorld()
   gotoScene('level', -1)
 end
 

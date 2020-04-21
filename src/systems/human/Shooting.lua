@@ -6,7 +6,7 @@ function system:onAdd(e)
 end
 
 function system:process(e,dt)
-  if e == nil then 
+  if e == nil or e.shooting == nil then 
     return
   end
   if e.shootingTimer <= 0 then 
