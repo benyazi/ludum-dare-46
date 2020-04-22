@@ -34,6 +34,7 @@ DEV = false
 GRAVITY = -500
 SCENE = 'main_menu'
 FONT_SIZE = 18
+LIVES = 3
 
 CAM_SCALE = 1.5
 
@@ -246,7 +247,8 @@ LevelSystems = {
     Systems.clear.RemoveTimer,
     Systems.exit.ExitEnter,
     Systems.exit.ExitEvent,
-    Systems.clear.CheckDownline
+    Systems.clear.CheckDownline,
+    Systems.dev.DrawLiveCount
 }
 LevelSystemsForRemove = {
   Systems.exit.ExitEnterFinal,
@@ -362,22 +364,37 @@ end
 
 SCREEN_MESSAGE = nil
 DOWNLINE = 0
+LAST_DIED_REASON = nil
 
 function gameOver(reason)
   if DEV then 
     gotoScene('level', CURRENT_LEVEL)
-  else
+    print('Game over: ' .. reason)
+    return
+  end
+  LIVES = LIVES - 1
+  if LIVES <= 0 then 
     SCREEN_MESSAGE = 'GAME OVER'
     if reason then 
+      LAST_DIED_REASON = reason
       SCREEN_MESSAGE = SCREEN_MESSAGE .. '. ' .. reason
     end
+    LAST_DIED_REASON = nil
+    LIVES = 3
     World:clearWorld()
     gotoScene('level', -1)
+  else
+    if reason then 
+      LAST_DIED_REASON = reason
+    end
+    gotoScene('level', CURRENT_LEVEL)
   end
 end
 
 GAME_END = nil
 function gameWin(reason)
+  LAST_DIED_REASON = nil
+  LIVES = 3
   SCREEN_MESSAGE = 'GAME WIN'
   if reason == 'live' then 
     GAME_END = reason
