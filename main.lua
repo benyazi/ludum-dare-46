@@ -416,6 +416,13 @@ function love.keypressed(key, scancode, isrepeat)
     SCENE = 'loading'
     -- gotoScene('level', 1)
   end
+  if scancode == 'o' then 
+    if DEV then 
+      DEV = nil
+    else
+      DEV = true
+    end
+  end
 
   if DEV then
     if pcall(function ()
